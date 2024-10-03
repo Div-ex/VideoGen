@@ -25,7 +25,7 @@ def get_ollama_response(prompt):
         result = ollama.chat(model='llama3.2:1b', messages=[
   {
     'role': 'system',
-    'content': 'Give a raunchy answer in one line',
+    'content': 'Give an answer in one line',
   },
   {
     'role': 'user',
