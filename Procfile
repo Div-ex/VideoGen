@@ -1,1 +1,1 @@
-web: gunicorn testFlask
+web: gunicorn 'testFlask'
