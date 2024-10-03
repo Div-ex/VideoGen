@@ -52,6 +52,10 @@ def prompt():
 
     # Return the response as JSON
     return jsonify({"response": response})
+  
+@app.route('/api/test', methods=['GET'])
+def test():
+    return jsonify({"message": "Service is up!"})
 
 # Run the web server
 if __name__ == "__main__":
