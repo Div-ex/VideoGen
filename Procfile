@@ -1,1 +1,1 @@
-web: gunicorn testFlask:app
+web: gunicorn 'testFlask:app'
