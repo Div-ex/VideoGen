@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Search</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .container {
+            max-width: 600px;
+            margin: auto;
+        }
+        #image-results {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .image-item img {
+            max-width: 100%;
+            max-height: 200px;
+            border: 1px solid #ccc;
+            padding: 5px;
+            border-radius: 5px;
+        }
+        #loading {
+            display: none;
+            font-size: 18px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Image Search</h1>
+        <form id="search-form">
+            <input type="text" id="query" placeholder="Enter search term" required>
+            <button type="submit">Search</button>
+        </form>
+
+        <div id="loading">Loading...</div>
+
+        <div id="image-results"></div>
+    </div>
+
+    <script>
+        const form = document.getElementById('search-form');
+        const queryInput = document.getElementById('query');
+        const resultsContainer = document.getElementById('image-results');
+        const loadingIndicator = document.getElementById('loading');
+
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const query = queryInput.value;
+
+            // Clear previous results
+            resultsContainer.innerHTML = '';
+            loadingIndicator.style.display = 'block';
+
+            // Fetch the images from the Flask API
+            fetch(`/search?q=${query}`)
+                .then(response => response.json())
+                .then(data => {
+                    loadingIndicator.style.display = 'none';
+                    console.log(data.images)
+                    if (data.images) {
+                        data.images.forEach(image => {
+                            const imgElement = document.createElement('div');
+                            imgElement.classList.add('image-item');
+                            imgElement.innerHTML = `<img src="${image}" alt="Image result">`;
+                            resultsContainer.appendChild(imgElement);
+                        });
+                    } else {
+                        resultsContainer.innerHTML = `<p>${data.error}</p>`;
+                    }
+                })
+                .catch(error => {
+                    loadingIndicator.style.display = 'none';
+                    resultsContainer.innerHTML = `<p>Error fetching images. Please try again.</p>`;
+                    console.error('Error:', error);
+                });
+        });
+    </script>
+</body>
+</html>

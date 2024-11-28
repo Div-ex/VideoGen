@@ -1,31 +1,87 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, render_template
 from flask_cors import CORS
-import subprocess
+import re
 import ollama
-
+import requests
 
 # Initialize Flask app
 app = Flask(__name__)
 CORS(app)
 
+API_KEY = 'AIzaSyDQnA2PLE_UpjuzfvWwaZ4gj7wek-zntG0'
+SEARCH_ENGINE_ID = '424ec37b66c164e69'
+
+
+# API_KEY = 'AIzaSyDRHJ3IJ5G2Y5mIUuDuSDVMvioUCUe-PMQ'
+# SEARCH_ENGINE_ID = '14b3410c6ac474dd5'
+
+def search_images(query):
+    url = f"https://www.googleapis.com/customsearch/v1"
+    image_links = []
+
+    for q in query:
+        params = {
+            'key': API_KEY,
+            'cx': SEARCH_ENGINE_ID,
+            'q': q,
+            'searchType': 'image',
+            'num': 1  # Adjust the number of results as needed
+        }
+
+        response = requests.get(url, params=params)
+        if response.status_code == 200:
+            results = response.json()
+            if 'items' in results:
+                for item in results['items']:
+                    image_links.append(item['link'])
+    
+    if image_links:
+        print(image_links)
+        return image_links
+    else:
+        return "Failed to fetch images"
+
+def separate_script(script):
+    # regular expression to identify  narrator
+    narrator_pattern = r"Narrator: \"(.*?)\""
+    narrator_pattern2 = r"Voiceover: \"(.*?)\""
+    narrator_pattern3 = r"Host: \"(.*?)\""
+    narrator_pattern4 = r"Narrator:\*\* \"(.*?)\""
+    # converting tuple to string
+    # narrator_pattern = "".join(narrator_pattern)
+
+    # find narrator regex
+    narrator_lines = re.findall(narrator_pattern, script)
+    print("narrator")
+    if narrator_lines == []:
+            narrator_lines = re.findall(narrator_pattern2, script)
+            print("voiceover")
+    elif narrator_lines == []:
+            narrator_lines = re.findall(narrator_pattern3, script)
+            print("host")
+    elif narrator_lines == []:
+            narrator_lines = re.findall(narrator_pattern4, script)
+            print("narrator**")
+
+    print("wow",narrator_lines)
+    
+    # Replace the narrator lines in the script with an empty string to leave only other segments
+    script_without_narrator = re.sub(narrator_pattern, "", script)
+
+    # Split the remaining script by lines and filter out empty or whitespace-only lines
+    other_segments = [line.strip() for line in script_without_narrator.splitlines() if line.strip()]
+
+    # Return the separated lists
+    return narrator_lines, other_segments
+    
+
 def get_ollama_response(prompt):
     try:
-        # result = subprocess.run(
-        #     ["ollama", "run", "llama3.2:1b", "p", prompt],
-        #     capture_output=True,
-        #     text=True
-        # )
-        
-        # # Check if the command executed successfully
-        # if result.returncode == 0:
-        #     return result.stdout.strip()  # Model response
-        # else:
-        #     return f"Error running model: {result.stderr}"  # Error message
         
         result = ollama.chat(model='llama3.2:1b', messages=[
   {
     'role': 'system',
-    'content': 'Give an answer in one line',
+    'content': 'Give me a script for narrated 1 minute video.',
   },
   {
     'role': 'user',
@@ -37,26 +93,51 @@ def get_ollama_response(prompt):
     except Exception as e:
         return f"Exception occurred: {str(e)}"
 
-# Define an endpoint to accept prompts
+def get_ollama_images(prompt):
+    try:
+        result = ollama.chat(model='llama3.2:1b', messages=[
+  {
+    'role': 'system',
+    'content': 'Generate a just a single list of keywords. Output the list only, without any introduction or numbering. Each term in a new line',
+  },
+  {
+    'role': 'user',
+    'content': prompt,
+  },
+])
+        print(result['message']['content'])
+        return result['message']['content']
+    except Exception as e:
+        return f"Exception occurred: {str(e)}"
+
+@app.route('/')
+def index():
+    return render_template('chatBot.html')
+
 @app.route("/api/prompt", methods=["POST"])
 def prompt():
-    # Ensure the request has a JSON body
+
     data = request.json
     if not data or 'prompt' not in data:
         return jsonify({"error": "No prompt provided"}), 400
 
     prompt = data['prompt']
-
-    # Get the response from the language model
     response = get_ollama_response(prompt)
+    
+    narrator_lines, other_instructions = separate_script(response)
+    print(type(narrator_lines))
+    image_terms = get_ollama_images("".join(narrator_lines))
+    
+    image_terms_list = image_terms.split("\n")
+    image_terms_sent =  image_terms.replace("\n", "---")
+    print(image_terms_list)
+    if image_terms_list:
+        image_links = search_images(image_terms_list)
+    return jsonify({"script" : " ".join(narrator_lines), "metadata" : "#".join(other_instructions), "image_terms" : image_terms_sent, "images" : image_links})
 
-    # Return the response as JSON
-    return jsonify({"response": response})
-  
 @app.route('/api/test', methods=['GET'])
 def test():
     return jsonify({"message": "Service is up!"})
 
-# Run the web server
 if __name__ == "__main__":
     app.run()
