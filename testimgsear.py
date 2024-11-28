@@ -2,10 +2,13 @@ import time
 from flask import Flask, request, jsonify, render_template
 import requests
 
-# API_KEY = 'AIzaSyDRHJ3IJ5G2Y5mIUuDuSDVMvioUCUe-PMQ'
-API_KEY = 'AIzaSyDQnA2PLE_UpjuzfvWwaZ4gj7wek-zntG0'
-# SEARCH_ENGINE_ID = '14b3410c6ac474dd5'
-SEARCH_ENGINE_ID = '424ec37b66c164e69'
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
+API_KEY = os.getenv('GOOGLE_API_KEY')
+SEARCH_ENGINE_ID = os.getenv('SEARCH_ENGINE_ID')
 
 
 def search_images(query):

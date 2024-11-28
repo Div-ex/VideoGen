@@ -3,17 +3,18 @@ from flask_cors import CORS
 import re
 import ollama
 import requests
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
+API_KEY = os.getenv('GOOGLE_API_KEY')
+SEARCH_ENGINE_ID = os.getenv('SEARCH_ENGINE_ID')
 
 # Initialize Flask app
 app = Flask(__name__)
 CORS(app)
 
-API_KEY = 'AIzaSyDQnA2PLE_UpjuzfvWwaZ4gj7wek-zntG0'
-SEARCH_ENGINE_ID = '424ec37b66c164e69'
-
-
-# API_KEY = 'AIzaSyDRHJ3IJ5G2Y5mIUuDuSDVMvioUCUe-PMQ'
-# SEARCH_ENGINE_ID = '14b3410c6ac474dd5'
 
 def search_images(query):
     url = f"https://www.googleapis.com/customsearch/v1"

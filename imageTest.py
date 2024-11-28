@@ -1,10 +1,13 @@
 from flask import Flask, request, jsonify, render_template
 import requests
+import os
+from dotenv import load_dotenv
+load_dotenv()
 
 app = Flask(__name__)
 
-API_KEY = 'AIzaSyDRHJ3IJ5G2Y5mIUuDuSDVMvioUCUe-PMQ'
-SEARCH_ENGINE_ID = '14b3410c6ac474dd5'
+API_KEY = os.getenv('GOOGLE_API_KEY')
+SEARCH_ENGINE_ID = os.getenv('SEARCH_ENGINE_ID')
 
 def search_images(query):
     url = f"https://www.googleapis.com/customsearch/v1"
