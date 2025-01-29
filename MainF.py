@@ -6,6 +6,7 @@ import requests
 import os
 from dotenv import load_dotenv
 from Link_to_video import create_slideshow
+from Pexel_linker import fetch_pexels_images
 
 load_dotenv()
 
@@ -17,7 +18,7 @@ app = Flask(__name__)
 CORS(app)
 
 
-def search_images(query):
+def search_google_images(query):
     url = f"https://www.googleapis.com/customsearch/v1"
     image_links = []
 
@@ -137,7 +138,9 @@ def prompt():
     image_terms_sent =  image_terms.replace("\n", "---")
     print(image_terms_list)
     if image_terms_list:
-        image_links = search_images(image_terms_list)
+        # image_links = search_google_images(image_terms_list)
+
+        image_links = fetch_pexels_images(image_terms_list)
         print("\n...\n")
     videofile = 'slideshow.avi'
     create_slideshow(image_links, videofile)
