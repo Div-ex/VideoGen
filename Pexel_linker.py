@@ -1,8 +1,8 @@
 import requests
 import os
 import time
-import cv2
 from dotenv import load_dotenv
+
 load_dotenv()
 
 # Configuration
