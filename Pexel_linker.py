@@ -33,6 +33,9 @@ def fetch_pexels_images(KEYWORDS):
         
         # Fetch images from Pexels API
         response = requests.get(f"https://api.pexels.com/v1/search?query={keyword}&per_page={IMAGES_PER_KEYWORD}", headers=headers)
+        print(response)
+        # data = response.json()
+        # print(data)
         if response.status_code == 200:
             data = response.json()
             for photo in data['photos']:
@@ -44,9 +47,9 @@ def fetch_pexels_images(KEYWORDS):
     print(photo_urls)
     return photo_urls
 
-if __name__ == "__main__":
-    if not API_KEY or API_KEY == "YOUR_API_KEY":
-        print("Please set your Pexels API key in the script")
-    else:
-        fetch_pexels_images()
-        print("\nImage download process completed!")
+# if __name__ == "__main__":
+#     if not API_KEY or API_KEY == "YOUR_API_KEY":
+#         print("Please set your Pexels API key in the script")
+#     else:
+#         fetch_pexels_images()
+#         print("\nImage download process completed!")
