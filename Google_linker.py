@@ -11,7 +11,6 @@ def search_google_images(query):
     url = f"https://www.googleapis.com/customsearch/v1"
     image_links = []
 
-
     for q in query:
         params = {
             'key': API_KEY,
@@ -19,7 +18,7 @@ def search_google_images(query):
             'q': q,
             'searchType': 'image',
             'num': 1,
-            
+
         }
 
         response = requests.get(url, params=params)
@@ -28,7 +27,7 @@ def search_google_images(query):
             if 'items' in results:
                 for item in results['items']:
                     image_links.append(item['link'])
-    
+
     if image_links:
         print(image_links)
         return image_links

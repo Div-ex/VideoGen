@@ -6,8 +6,8 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Configuration
-API_KEY = os.getenv('PEXEL_API_KEY') 
-IMAGES_PER_KEYWORD = 1 
+API_KEY = os.getenv('PEXEL_API_KEY')
+IMAGES_PER_KEYWORD = 1
 REQUEST_DELAY = 1  # Delay between requests in seconds (avoid rate limiting)
 
 # def download_image(url, file_path):
@@ -24,15 +24,17 @@ REQUEST_DELAY = 1  # Delay between requests in seconds (avoid rate limiting)
 #             print(f"Error downloading image: {str(e)}")
 #         return False
 
+
 def fetch_pexels_images(KEYWORDS):
     headers = {"Authorization": API_KEY}
-    
+
     photo_urls = []
     for keyword in KEYWORDS:
         print(f"\nSearching for '{keyword}' images...")
-        
+
         # Fetch images from Pexels API
-        response = requests.get(f"https://api.pexels.com/v1/search?query={keyword}&per_page={IMAGES_PER_KEYWORD}", headers=headers)
+        response = requests.get(f"https://api.pexels.com/v1/search?query={
+                                keyword}&per_page={IMAGES_PER_KEYWORD}", headers=headers)
         print(response)
         # data = response.json()
         # print(data)
@@ -40,9 +42,10 @@ def fetch_pexels_images(KEYWORDS):
             data = response.json()
             for photo in data['photos']:
                 print(photo['src']['original'])
-                photo_urls.append(photo['src']['original']) # Save image URL
+                photo_urls.append(photo['src']['original'])  # Save image URL
         else:
-            print(f"Error fetching images for keyword '{keyword}': {response.status_code}")
+            print(f"Error fetching images for keyword '{
+                  keyword}': {response.status_code}")
         time.sleep(REQUEST_DELAY)
     print(photo_urls)
     return photo_urls

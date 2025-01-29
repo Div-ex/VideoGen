@@ -13,7 +13,7 @@ SEARCH_ENGINE = os.getenv('SEARCH_ENGINE_ID')
 def search_images(query):
     url = f"https://www.googleapis.com/customsearch/v1"
     image_links = []
-    
+
     for q in query:
         params = {
             'key': API_KEY,
@@ -43,5 +43,6 @@ def search_images(query):
         return image_links
     else:
         return None
+
 
 print(search_images(["Alberto Ascari", "Fernando Alonso"]))
