@@ -5,6 +5,7 @@ import ollama
 import requests
 import os
 from dotenv import load_dotenv
+from Link_to_video import create_slideshow
 
 load_dotenv()
 
@@ -20,13 +21,15 @@ def search_images(query):
     url = f"https://www.googleapis.com/customsearch/v1"
     image_links = []
 
+
     for q in query:
         params = {
             'key': API_KEY,
             'cx': SEARCH_ENGINE_ID,
             'q': q,
             'searchType': 'image',
-            'num': 1  # Adjust the number of results as needed
+            'num': 1,
+            
         }
 
         response = requests.get(url, params=params)
@@ -40,6 +43,7 @@ def search_images(query):
         print(image_links)
         return image_links
     else:
+        print("Failed to fetch images")
         return "Failed to fetch images"
 
 def separate_script(script):
@@ -79,7 +83,7 @@ def separate_script(script):
 def get_ollama_response(prompt):
     try:
         
-        result = ollama.chat(model='llama3.2:1b', messages=[
+        result = ollama.chat(model='llama3.2:3b', messages=[
   {
     'role': 'system',
     'content': 'Give me a script for narrated 1 minute video.',
@@ -96,7 +100,7 @@ def get_ollama_response(prompt):
 
 def get_ollama_images(prompt):
     try:
-        result = ollama.chat(model='llama3.2:1b', messages=[
+        result = ollama.chat(model='llama3.2:3b', messages=[
   {
     'role': 'system',
     'content': 'Generate a just a single list of keywords. Output the list only, without any introduction or numbering. Each term in a new line',
@@ -134,6 +138,9 @@ def prompt():
     print(image_terms_list)
     if image_terms_list:
         image_links = search_images(image_terms_list)
+        print("\n...\n")
+    videofile = 'slideshow.avi'
+    create_slideshow(image_links, videofile)
     return jsonify({"script" : " ".join(narrator_lines), "metadata" : "#".join(other_instructions), "image_terms" : image_terms_sent, "images" : image_links})
 
 @app.route('/api/test', methods=['GET'])
