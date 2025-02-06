@@ -26,7 +26,7 @@ def download_image(url):
 
 
 def create_slideshow(image_urls, videofile, frame_rate=1, video_resolution=(1280, 720)):
-    fourcc = cv2.VideoWriter_fourcc(*'XVID')
+    fourcc = cv2.VideoWriter_fourcc(*'mp4v')
     out = cv2.VideoWriter(videofile, fourcc, frame_rate, video_resolution)
 
     for url in image_urls:
@@ -36,20 +36,20 @@ def create_slideshow(image_urls, videofile, frame_rate=1, video_resolution=(1280
                 continue
 
             img_resized = cv2.resize(img, video_resolution)
-
+            print(url)
             out.write(img_resized)
         except Exception as e:
             print(f"Error processing image {url}: {e}")
 
     out.release()
 
-# def main():
-#     image_urls = [
-#         "https://www.purina.in/sites/default/files/2023-05/feast.png",
-#         "https://www.bluecross.org.uk/sites/default/files/d8/styles/theme_feature_extra_large/public/2024-05/BX170007_Daisy-2024-04-23-0911_lpr.jpg.webp"
-#     ]
-#     videofile = 'slideshow.avi'
-#     create_slideshow(image_urls, videofile)
+def main():
+    image_urls = [
+        "https://www.purina.in/sites/default/files/2023-05/feast.png",
+        "https://www.bluecross.org.uk/sites/default/files/d8/styles/theme_feature_extra_large/public/2024-05/BX170007_Daisy-2024-04-23-0911_lpr.jpg.webp"
+    ]
+    videofile = 'slideshow.mp4'
+    create_slideshow(image_urls, videofile)
 
 
 if __name__ == "__main__":
