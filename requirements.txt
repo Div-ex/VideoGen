@@ -21,3 +21,10 @@ python-dotenv
 pillow
 opencv-python
 numpy
+# AudioAdd
+gtts
+transformers
+moviepy==1.0.3
+ipython
+torch
+pyttsx3

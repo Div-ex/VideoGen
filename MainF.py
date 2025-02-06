@@ -10,6 +10,7 @@ from Script_separate import separate_script
 from Link_to_video import create_slideshow
 
 app = Flask(__name__)
+
 CORS(app)
 
 
@@ -36,8 +37,8 @@ def prompt():
     image_terms_sent = image_terms.replace("\n", "---")
     print(image_terms_list)
     if image_terms_list:
-        # image_links = search_google_images(image_terms_list)
-        image_links = fetch_pexels_images(image_terms_list)
+        image_links = search_google_images(image_terms_list)
+        # image_links = fetch_pexels_images(image_terms_list)
 
         print("\n...\n")
     videofile = 'slideshow.avi'

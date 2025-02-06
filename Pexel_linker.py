@@ -6,7 +6,8 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Configuration
-API_KEY = os.getenv('PEXEL_API_KEY')
+API_KEY = os.getenv('PEXEL_API_KEY_2')
+print(API_KEY)
 IMAGES_PER_KEYWORD = 1
 REQUEST_DELAY = 1  # Delay between requests in seconds (avoid rate limiting)
 
