@@ -18,14 +18,16 @@ SCRIPT:
 - [Duration in seconds] [Narration]
 (etc.)
 
-The total duration of all scenes should be around 60 seconds.
-Provide at least 6 scenes. Example:
+The total duration of all 10 scenes should be around 60 seconds.
+Provide at most 10 scenes. 
+Provide maximum 10 scenes.
+Example:
 
 KEYWORDS: forest fire, melting glaciers, pollution
 SCRIPT:
 - 5.0: The flames are engulfing a dense forest
-- 4.5: And large icebergs are collapsing into the ocean
-- 8.0: Factories continue to emit dark smoke
+- 12.0: And large icebergs are collapsing into the ocean
+- 20.0: Factories continue to emit dark smoke
 ... (etc.)
 
 Now create a script for the following user prompt:

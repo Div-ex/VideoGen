@@ -137,18 +137,71 @@ def fetch_pexels_images(keyword, num_images=1):
         logging.error(f"Image fetch error: {str(e)}")
         return urls
 
-def create_clip_from_image(image_url, duration, text):
+# def create_clip_from_image(image_url, duration, text):
+#     """
+#     Create a single video clip from one image URL, with text overlay.
+#     """
+#     try:
+#         response = requests.get(image_url, timeout=15)
+#         img = Image.open(BytesIO(response.content)).convert("RGB")
+#         img = img.resize((1280, 720))
+#         img_np = np.array(img)
+
+#         clip = ImageClip(img_np).set_duration(duration)
+
+#         wrapped_text = textwrap.fill(text, width=40)
+#         txt_clip = TextClip(
+#             wrapped_text,
+#             fontsize=28,
+#             color="white",
+#             font="DejaVu-Sans-Bold",
+#             method="caption",
+#             align="center",
+#             stroke_color="black",
+#             stroke_width=2
+#         ).set_duration(duration).set_position(("center", "bottom"))
+
+#         return CompositeVideoClip([clip, txt_clip])
+#     except Exception as e:
+#         logging.error(f"Clip creation from image failed: {str(e)}")
+#         return None
+
+def create_clip_from_image(scene_text, keywords, output_audio_path="temp_audio.mp3"):
     """
-    Create a single video clip from one image URL, with text overlay.
+    Create a single video clip from one image URL, with text overlay and TTS audio narration.
+    The duration of the clip is determined by the length of the generated audio narration.
     """
+    
+    if keywords:
+        primary_keyword = scene_text
+    else:
+        primary_keyword = "nature"  
+
+    
+    image_urls = fetch_pexels_images(primary_keyword, num_images=images_per_scene)
+
+    if not image_urls:
+        logging.warning(f"No images found for {primary_keyword}, using fallback.")
+        return [ColorClip(size=(1280,720), color=(0,0,0), duration=duration)]
+    
     try:
+        # Generate TTS audio
+        text = scene_text
+        tts = gTTS(text)
+        tts.save(output_audio_path)
+        audio_clip = AudioFileClip(output_audio_path)
+        duration = audio_clip.duration  # Set video duration based on audio duration
+
+        # Fetch image
         response = requests.get(image_url, timeout=15)
         img = Image.open(BytesIO(response.content)).convert("RGB")
         img = img.resize((1280, 720))
         img_np = np.array(img)
-
+        
+        # Create video clip
         clip = ImageClip(img_np).set_duration(duration)
 
+        # Create text overlay
         wrapped_text = textwrap.fill(text, width=40)
         txt_clip = TextClip(
             wrapped_text,
@@ -160,8 +213,16 @@ def create_clip_from_image(image_url, duration, text):
             stroke_color="black",
             stroke_width=2
         ).set_duration(duration).set_position(("center", "bottom"))
+        
+        # Combine video and text overlay
+        video_clip = CompositeVideoClip([clip, txt_clip])
+        
+        # Set audio narration to video
+        video_clip = video_clip.set_audio(audio_clip)
+        
+        video_clip.write_videofile("output_v.mp4", fps=24, codec='h264_nvenc', audio_codec='aac')
 
-        return CompositeVideoClip([clip, txt_clip])
+        # return video_clip
     except Exception as e:
         logging.error(f"Clip creation from image failed: {str(e)}")
         return None
@@ -205,16 +266,16 @@ def create_scene_clips(scene_text, duration, keywords, images_per_scene=1):
     return [scene_clip]
 
 
-def generate_audio_narration(script):
-    """
-    Generate a TTS narration for the entire script text,
-    then create an AudioFileClip for it.
-    """
-    full_text = " ".join(scene_text for _, scene_text in script)
-    tts = gTTS(full_text)
-    audio_path = "narration.mp3"
-    tts.save(audio_path)
-    return AudioFileClip(audio_path)
+# def generate_audio_narration(script):
+#     """
+#     generate tts. return audioclipfile
+#     """
+
+#     full_text = " ".join(scene_text for _, scene_text in script)
+#     tts = gTTS(full_text)
+#     audio_path = "narration.mp3"
+#     tts.save(audio_path)
+#     return AudioFileClip(audio_path)
 
 
 def generate_video(prompt, images_per_scene=1):
@@ -240,9 +301,9 @@ def generate_video(prompt, images_per_scene=1):
 
         all_clips = []
         for i, (duration, scene_text) in enumerate(script):
-            scene_clips = create_scene_clips(
+            scene_clips = create_clip_from_image(
                 scene_text=scene_text,
-                duration=duration,
+                # duration=duration,
                 keywords=keywords,
                 images_per_scene=images_per_scene
             )
@@ -253,9 +314,9 @@ def generate_video(prompt, images_per_scene=1):
 
         final_clip = concatenate_videoclips(all_clips, method="compose", padding=-1)
 
-        narration = generate_audio_narration(script)
+        # narration = generate_audio_narration(script)
 
-        final_clip = final_clip.set_audio(narration)
+        # final_clip = final_clip.set_audio(narration)
 
         output_filename = "final_video.mp4"
         final_clip.write_videofile(output_filename, fps=24, codec='h264_nvenc', audio_codec='aac')
@@ -267,7 +328,7 @@ def generate_video(prompt, images_per_scene=1):
 
 
 if __name__ == "__main__":
-    user_prompt = "Create a short but comprehensive video about Indian culture and heritage with a religious manner."
+    user_prompt = "Create a short but comprehensive video about IoT."
     video_file = generate_video(user_prompt, images_per_scene=2)
 
     if video_file:
