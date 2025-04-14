@@ -17,13 +17,13 @@ from components.GetImgPex import fetch_pexels_images
 logging.basicConfig(level=logging.INFO)
 
 
-def create_clip_from_image(scene_text, keywords, images_per_scene = 1, output_audio_path="temp_audio.mp3", resolution = (854, 480)):
+def create_clip_from_image(scene_text, images_per_scene = 1, output_audio_path="temp_audio.mp3", resolution = (854, 480)):
     """
     Create a single video clip from one image URL, with text overlay and TTS audio narration.
     The duration of the clip is determined by the length of the generated audio narration.
     """
     
-    if keywords:
+    if scene_text:
         primary_keyword = scene_text
     else:
         primary_keyword = "nature"  
@@ -93,22 +93,25 @@ def generate_video(prompt, images_per_scene=1, resolution=(1280, 720)):
             logging.error("No script generated.")
             return None
 
-        keywords, script = parse_script(raw_script)
+        script = parse_script(raw_script)
         if not script:
             logging.error("No valid scenes in script.")
             logging.info(f"Parsed script: {script}")
             return None
-
+        print(script)
+        for scene_text in script:
+            print("gen_vid",scene_text)
+        
         all_clips = []
-        for i, (duration, scene_text) in enumerate(script):
+        for scene_text in script:
             scene_clips = create_clip_from_image(
                 scene_text=scene_text,
                 # duration=duration,
-                keywords=keywords,
+                # keywords=keywords,
                 images_per_scene=images_per_scene,
                 resolution=resolution,
             )
-            print(scene_clips)
+            # print("gen_vid",scene_text)
             if not scene_clips:
                 logging.error(f"Scene clips for '{scene_text}' are None.")
                 continue 

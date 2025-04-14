@@ -15,8 +15,8 @@ import os
 from dotenv import load_dotenv
 
 from components.GetVideo import generate_video
-from tests.GenAITest import generate_script, parse_script, get_ollama_images
-from tests.GetImgPexTest import fetch_pexels_images
+from tests.GenText import generate_script, parse_script, get_ollama_images
+from tests.GetImgPex import fetch_pexels_images
 
 
 load_dotenv()
